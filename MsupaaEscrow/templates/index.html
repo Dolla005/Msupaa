@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}MsupaaEscrow — Secure Escrow Transactions{% endblock %}
+{% block public_content %}
+<div class="landing">
+  <header class="landing-nav">
+    <a class="brand dark" href="{{ url_for('index') }}"><span class="brand-mark">M</span><span><strong>MsupaaEscrow</strong><small>Secure transactions</small></span></a>
+    <div class="nav-actions"><a class="btn ghost" href="{{ url_for('login') }}">Sign in</a><a class="btn primary" href="{{ url_for('register') }}">Create account</a></div>
+  </header>
+  <section class="landing-hero">
+    <div class="hero-copy">
+      <span class="pill">Protected buyer ↔ seller payments</span>
+      <h1 class="cinematic-title" aria-label="Trade with confidence. Your money stays protected.">
+        <span class="type-line line-dark" data-type-text="Trade with confidence."></span>
+        <span class="type-line line-accent" data-type-text="Your money stays protected."></span>
+      </h1>
+      <p>MsupaaEscrow holds payment until delivery is confirmed, keeps disputed funds locked, and maintains a complete transaction trail for both parties.</p>
+      <div class="hero-actions"><a class="btn primary large" href="{{ url_for('register') }}">Start a secure transaction</a><a class="btn ghost large" href="{{ url_for('login') }}">Sign in to your account</a></div>
+    </div>
+    <div class="escrow-flow-card">
+      <h3>How MsupaaEscrow works</h3>
+      <div class="flow-step"><span>1</span><div><strong>Buyer creates & funds</strong><small>Payment moves into HELD status.</small></div></div>
+      <div class="flow-line"></div>
+      <div class="flow-step"><span>2</span><div><strong>Seller ships</strong><small>Tracking and release timer are recorded.</small></div></div>
+      <div class="flow-line"></div>
+      <div class="flow-step"><span>3</span><div><strong>Buyer confirms</strong><small>Funds release to the seller.</small></div></div>
+      <div class="flow-line"></div>
+      <div class="flow-step"><span>!</span><div><strong>Or raise a dispute</strong><small>Funds remain locked for admin resolution.</small></div></div>
+    </div>
+  </section>
+  <section class="feature-grid">
+    <article>
+      <span class="feature-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="5" y="10" width="14" height="10" rx="2"></rect>
+          <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
+        </svg>
+      </span>
+      <h3>Escrow holding</h3>
+      <p>Payment status is controlled until the transaction reaches a valid release condition.</p>
+    </article>
+    <article>
+      <span class="feature-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 6h11v10H3z"></path>
+          <path d="M14 9h4l3 3v4h-7z"></path>
+          <circle cx="7" cy="18" r="2"></circle>
+          <circle cx="18" cy="18" r="2"></circle>
+        </svg>
+      </span>
+      <h3>Delivery tracking</h3>
+      <p>Sellers record shipment details and buyers receive delivery notifications.</p>
+    </article>
+    <article>
+      <span class="feature-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v18"></path>
+          <path d="M5 6h14"></path>
+          <path d="M7 6 3.5 13h7L7 6Z"></path>
+          <path d="m17 6-3.5 7h7L17 6Z"></path>
+          <path d="M8 21h8"></path>
+        </svg>
+      </span>
+      <h3>Dispute handling</h3>
+      <p>Administrators can release or refund disputed payments with an auditable record.</p>
+    </article>
+    <article>
+      <span class="feature-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 20V10"></path>
+          <path d="M10 20V4"></path>
+          <path d="M16 20v-7"></path>
+          <path d="M22 20H2"></path>
+        </svg>
+      </span>
+      <h3>Reporting</h3>
+      <p>Every order event is recorded and can be exported as CSV.</p>
+    </article>
+  </section>
+</div>
+{% endblock %}

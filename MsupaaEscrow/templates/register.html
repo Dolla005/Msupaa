@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Create account — MsupaaEscrow{% endblock %}
+{% block public_content %}
+<div class="auth-layout"><div class="auth-card">
+<a class="brand dark centered" href="{{ url_for('index') }}"><span class="brand-mark">M</span><span><strong>MsupaaEscrow</strong><small>Secure transactions</small></span></a>
+<h1>Create your account</h1><p class="muted">Register as a Buyer or Seller.</p>
+<form method="post">
+<input type="hidden" name="_csrf" value="{{ csrf_token }}">
+<label>Full name<input name="name" required minlength="2" value="{{ request.form.get('name','') }}"></label>
+<label>Email<input type="email" name="email" required value="{{ request.form.get('email','') }}"></label>
+<label>Role<select name="role" required><option value="buyer">Buyer</option><option value="seller">Seller</option></select></label>
+<label>Password<input type="password" name="password" required minlength="8"></label>
+<button class="btn primary full" type="submit">Create account</button>
+</form>
+<p class="auth-foot">Already registered? <a href="{{ url_for('login') }}">Sign in</a></p>
+</div></div>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block page_title %}Orders{% endblock %}
+{% block content %}
+<section class="panel">
+<div class="panel-head"><div><p class="eyebrow">Escrow transactions</p><h2>All orders</h2></div>{% if current_user.role=='buyer' %}<a class="btn primary" href="{{ url_for('new_order') }}">+ New Order</a>{% endif %}</div>
+{% if orders %}
+<div class="order-grid">{% for order in orders %}
+<a class="order-card" href="{{ url_for('order_detail', public_id=order.public_id) }}">
+<div class="order-card-top"><div><small>{{ order.public_id }}</small><h3>{{ order.item_name }}</h3></div><span class="status {{ order.status|lower }}">{{ order.status.replace('_',' ') }}</span></div>
+<div class="order-card-amount">{{ money(order.amount_cents, order.currency) }}</div>
+<div class="order-meta"><span><small>Buyer</small>{{ order.buyer_name }}</span><span><small>Seller</small>{{ order.seller_name }}</span></div>
+</a>{% endfor %}</div>
+{% else %}<div class="empty-state"><h3>No orders found</h3><p>There are no transactions for this account yet.</p></div>{% endif %}
+</section>
+{% endblock %}

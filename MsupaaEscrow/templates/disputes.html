@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block page_title %}Disputes{% endblock %}
+{% block content %}
+<section class="panel">
+<div class="panel-head"><div><p class="eyebrow">Resolution centre</p><h2>{{ 'All disputes' if current_user.role=='admin' else 'Your disputes' }}</h2></div></div>
+{% if disputes %}
+<div class="case-list">{% for d in disputes %}
+<article class="case-card">
+<div class="case-top"><div><p class="eyebrow">{{ d.public_id }} • Dispute #{{ d.id }}</p><h3>{{ d.item_name }}</h3></div><span class="status {{ 'disputed' if d.status=='OPEN' else 'released' }}">{{ d.status }}</span></div>
+<div class="case-info">
+<div><small>Amount</small><strong>{{ money(d.amount_cents, d.currency) }}</strong></div>
+<div><small>Buyer</small><strong>{{ d.buyer_name }}</strong></div>
+<div><small>Seller</small><strong>{{ d.seller_name }}</strong></div>
+<div><small>Opened by</small><strong>{{ d.opened_by_name }}</strong></div>
+</div>
+<div class="case-reason"><strong>{{ d.reason }}</strong><p>{{ d.details or 'No additional details.' }}</p></div>
+{% if current_user.role=='admin' and d.status=='OPEN' %}
+<form class="resolution-form" method="post" action="{{ url_for('resolve_dispute', dispute_id=d.id) }}">
+<input type="hidden" name="_csrf" value="{{ csrf_token }}">
+<label>Administrator note<textarea name="admin_note" rows="2" placeholder="Reason for the decision"></textarea></label>
+<div class="button-row">
+<button class="btn danger" name="resolution" value="REFUND_BUYER" type="submit" data-confirm="Refund the buyer and close this dispute?">Refund Buyer</button>
+<button class="btn success" name="resolution" value="RELEASE_SELLER" type="submit" data-confirm="Release funds to the seller and close this dispute?">Release to Seller</button>
+</div></form>
+{% elif d.status=='RESOLVED' %}
+<div class="resolution-result"><strong>Resolution:</strong> {{ d.resolution.replace('_',' ') if d.resolution else 'Resolved' }}{% if d.admin_note %}<p>{{ d.admin_note }}</p>{% endif %}</div>
+{% endif %}
+<a class="text-link" href="{{ url_for('order_detail', public_id=d.public_id) }}">Open transaction →</a>
+</article>
+{% endfor %}</div>
+{% else %}<div class="empty-state"><h3>No disputes</h3><p>No dispute cases are available for this account.</p></div>{% endif %}
+</section>
+{% endblock %}

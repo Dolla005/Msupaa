@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block page_title %}Order {{ order.public_id }}{% endblock %}
+{% block content %}
+<section class="order-hero">
+  <div><p class="eyebrow">{{ order.public_id }}</p><h2>{{ order.item_name }}</h2><p>{{ order.description or 'No description provided.' }}</p></div>
+  <div class="amount-block"><small>Escrow amount</small><strong>{{ money(order.amount_cents, order.currency) }}</strong><span class="status {{ order.status|lower }}">{{ order.status.replace('_',' ') }}</span></div>
+</section>
+
+<div class="detail-grid">
+<section class="panel">
+  <div class="panel-head"><div><p class="eyebrow">Transaction</p><h2>Order details</h2></div></div>
+  <dl class="detail-list">
+    <div><dt>Buyer</dt><dd>{{ order.buyer_name }}<small>{{ order.buyer_email }}</small></dd></div>
+    <div><dt>Seller</dt><dd>{{ order.seller_name }}<small>{{ order.seller_email }}</small></dd></div>
+    <div><dt>Tracking</dt><dd>{{ order.tracking_number or 'Not shipped yet' }}</dd></div>
+    <div><dt>Created</dt><dd>{{ order.created_at[:19].replace('T',' ') }}</dd></div>
+    {% if order.auto_release_at %}<div><dt>Auto release</dt><dd>{{ order.auto_release_at[:19].replace('T',' ') }} UTC</dd></div>{% endif %}
+  </dl>
+
+  <div class="action-zone">
+    {% if current_user.role=='buyer' and current_user.id==order.buyer_id and order.status=='PENDING_PAYMENT' %}
+    <div class="action-card">
+      <h3>Fund escrow</h3><p>This uses the built-in test payment flow. It records a successful test payment and locks the amount in HELD status.</p>
+      <form method="post" action="{{ url_for('fund_order', public_id=order.public_id) }}">
+        <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+        <button class="btn primary" type="submit">Pay {{ money(order.amount_cents, order.currency) }} into Escrow</button>
+      </form>
+    </div>
+    {% endif %}
+
+    {% if current_user.role=='seller' and current_user.id==order.seller_id and order.status=='HELD' %}
+    <div class="action-card">
+      <h3>Ship the order</h3><p>Enter delivery/tracking information and confirm shipment.</p>
+      <form method="post" action="{{ url_for('ship_order', public_id=order.public_id) }}">
+        <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+        <label>Tracking / delivery reference<input name="tracking_number" placeholder="e.g. G4S-239930 or Rider 0712..."></label>
+        <button class="btn primary" type="submit">Mark as Shipped</button>
+      </form>
+    </div>
+    {% endif %}
+
+    {% if current_user.role=='buyer' and current_user.id==order.buyer_id and order.status=='SHIPPED' %}
+    <div class="action-card success-card">
+      <h3>Received the item?</h3><p>Confirming delivery releases the held funds to the seller.</p>
+      <form method="post" action="{{ url_for('confirm_delivery', public_id=order.public_id) }}" data-confirm="Release escrow funds to the seller?">
+        <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+        <button class="btn success" type="submit">Confirm Delivery & Release Funds</button>
+      </form>
+    </div>
+    {% endif %}
+
+    {% if current_user.role in ['buyer','seller'] and order.status in ['HELD','SHIPPED'] %}
+    <div class="action-card danger-card">
+      <h3>Something went wrong?</h3><p>Opening a dispute locks the funds until an administrator resolves the case.</p>
+      <form method="post" action="{{ url_for('raise_dispute', public_id=order.public_id) }}">
+        <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+        <label>Reason<select name="reason" required>
+          <option value="">Choose a reason</option>
+          <option>Item not received</option>
+          <option>Item damaged or different from description</option>
+          <option>Buyer has not confirmed delivery</option>
+          <option>Payment or delivery disagreement</option>
+          <option>Other</option>
+        </select></label>
+        <label>Details<textarea name="details" rows="3" placeholder="Explain the problem"></textarea></label>
+        <button class="btn danger" type="submit">Open Dispute</button>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<aside>
+<section class="panel">
+<div class="panel-head"><div><p class="eyebrow">Audit trail</p><h2>Timeline</h2></div></div>
+<div class="timeline">{% for t in transactions %}
+<div class="timeline-item"><span></span><div><strong>{{ t.event_type.replace('_',' ')|title }}</strong><p>{{ t.note or '' }}</p><small>{{ t.created_at[:19].replace('T',' ') }} UTC</small></div></div>
+{% endfor %}</div>
+</section>
+
+{% if disputes %}
+<section class="panel">
+<div class="panel-head"><div><p class="eyebrow">Case history</p><h2>Disputes</h2></div></div>
+{% for d in disputes %}
+<div class="mini-case"><div><strong>{{ d.reason }}</strong><span class="status {{ 'disputed' if d.status=='OPEN' else 'released' }}">{{ d.status }}</span></div><p>{{ d.details }}</p><small>Opened by {{ d.opened_by_name }}</small>{% if d.resolution %}<p><b>Resolution:</b> {{ d.resolution.replace('_',' ') }}</p>{% endif %}</div>
+{% endfor %}
+</section>
+{% endif %}
+</aside>
+</div>
+{% endblock %}

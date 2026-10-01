@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block page_title %}New Escrow Order{% endblock %}
+{% block content %}
+<section class="form-panel narrow">
+<div class="panel-head"><div><p class="eyebrow">Buyer action</p><h2>Create protected transaction</h2></div></div>
+<form method="post">
+<input type="hidden" name="_csrf" value="{{ csrf_token }}">
+<label>Item or service<input name="item_name" required placeholder="e.g. Laptop, phone, design service" value="{{ request.form.get('item_name','') }}"></label>
+<label>Description<textarea name="description" rows="4" placeholder="Describe what is being purchased">{{ request.form.get('description','') }}</textarea></label>
+<div class="two-col">
+<label>Seller<select name="seller_id" required><option value="">Choose seller</option>{% for seller in sellers %}<option value="{{ seller.id }}">{{ seller.name }} — {{ seller.email }}</option>{% endfor %}</select></label>
+<label>Amount (KES)<input type="number" name="amount" min="1" step="0.01" required placeholder="35000"></label>
+</div>
+<div class="info-box"><strong>Next step:</strong> after creating the order, fund it using the built-in test payment flow. The payment moves to <b>HELD</b> status.</div>
+<button class="btn primary" type="submit">Create Escrow Order</button>
+</form></section>
+{% endblock %}

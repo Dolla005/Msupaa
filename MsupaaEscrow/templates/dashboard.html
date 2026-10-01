@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block page_title %}Dashboard{% endblock %}
+{% block content %}
+<section class="welcome-card">
+  <div><p class="eyebrow">{{ current_user.role|title }} workspace</p><h2>Hello, {{ current_user.name }}.</h2>
+  <p>{% if current_user.role=='buyer' %}Create protected orders, track delivery, confirm completion, or open a dispute.{% elif current_user.role=='seller' %}Review funded orders, record shipment, and follow payment release status.{% else %}Monitor all transactions, users, disputes, releases and refunds.{% endif %}</p></div>
+  <div class="role-chip">{{ current_user.role|upper }}</div>
+</section>
+<section class="stats-grid">
+  <article class="stat"><span>Total orders</span><strong>{{ stats.total }}</strong></article>
+  <article class="stat"><span>Funds held</span><strong>{{ money(stats.held) }}</strong></article>
+  <article class="stat"><span>Released</span><strong>{{ money(stats.released) }}</strong></article>
+  <article class="stat"><span>Open disputes</span><strong>{{ open_disputes }}</strong></article>
+</section>
+<section class="panel">
+<div class="panel-head"><div><p class="eyebrow">Recent activity</p><h2>Latest orders</h2></div><a class="text-link" href="{{ url_for('orders') }}">View all →</a></div>
+{% if orders %}
+<div class="table-wrap"><table><thead><tr><th>Order</th><th>Item</th><th>Buyer</th><th>Seller</th><th>Amount</th><th>Status</th></tr></thead><tbody>
+{% for order in orders %}<tr><td><a href="{{ url_for('order_detail', public_id=order.public_id) }}">{{ order.public_id }}</a></td><td>{{ order.item_name }}</td><td>{{ order.buyer_name }}</td><td>{{ order.seller_name }}</td><td>{{ money(order.amount_cents, order.currency) }}</td><td><span class="status {{ order.status|lower }}">{{ order.status.replace('_',' ') }}</span></td></tr>{% endfor %}
+</tbody></table></div>
+{% else %}<div class="empty-state"><h3>No orders yet</h3><p>Your transactions will appear here.</p>{% if current_user.role=='buyer' %}<a class="btn primary" href="{{ url_for('new_order') }}">Create first order</a>{% endif %}</div>{% endif %}
+</section>
+{% endblock %}

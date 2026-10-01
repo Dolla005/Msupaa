@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block page_title %}Notifications{% endblock %}
+{% block content %}
+<section class="panel">
+<div class="panel-head"><div><p class="eyebrow">Activity updates</p><h2>Notifications</h2></div>
+{% if notifications %}<form method="post" action="{{ url_for('clear_notifications') }}"><input type="hidden" name="_csrf" value="{{ csrf_token }}"><button class="btn ghost" type="submit">Clear all</button></form>{% endif %}
+</div>
+{% if notifications %}
+<div class="notification-list">{% for n in notifications %}
+<article class="notification-item {{ 'unread' if not n.is_read else '' }}"><span class="notification-dot"></span><div><strong>{{ n.title }}</strong><p>{{ n.message }}</p><small>{{ n.created_at[:19].replace('T',' ') }} UTC</small></div></article>
+{% endfor %}</div>
+{% else %}<div class="empty-state"><h3>No notifications</h3><p>Transaction alerts will appear here.</p></div>{% endif %}
+</section>
+{% endblock %}

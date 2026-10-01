@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}{{ APP_NAME }}{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+{% if current_user %}
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="{{ url_for('dashboard') }}">
+      <span class="brand-mark">M</span>
+      <span><strong>MsupaaEscrow</strong><small>Secure transactions</small></span>
+    </a>
+    <nav>
+      <a class="{{ 'active' if request.endpoint=='dashboard' else '' }}" href="{{ url_for('dashboard') }}">Dashboard</a>
+      <a class="{{ 'active' if request.endpoint in ['orders','order_detail','new_order'] else '' }}" href="{{ url_for('orders') }}">Orders</a>
+      <a class="{{ 'active' if request.endpoint=='disputes' else '' }}" href="{{ url_for('disputes') }}">Disputes</a>
+      <a class="{{ 'active' if request.endpoint in ['reports','reports_csv'] else '' }}" href="{{ url_for('reports') }}">Reports</a>
+      <a class="{{ 'active' if request.endpoint=='notifications' else '' }}" href="{{ url_for('notifications') }}">Notifications {% if unread_notifications %}<span class="nav-badge">{{ unread_notifications }}</span>{% endif %}</a>
+      {% if current_user.role == 'admin' %}
+      <a class="{{ 'active' if request.endpoint=='admin_users' else '' }}" href="{{ url_for('admin_users') }}">Users</a>
+      {% endif %}
+    </nav>
+    <div class="sidebar-user">
+      <span class="avatar">{{ current_user.name[:1]|upper }}</span>
+      <div><strong>{{ current_user.name }}</strong><small>{{ current_user.role|title }}</small></div>
+    </div>
+    <form method="post" action="{{ url_for('logout') }}">
+      <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+      <button class="logout-btn" type="submit">Sign out</button>
+    </form>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div><p class="eyebrow">MsupaaEscrow</p><h1>{% block page_title %}Dashboard{% endblock %}</h1></div>
+      {% if current_user.role == 'buyer' %}
+      <a class="btn primary" href="{{ url_for('new_order') }}">+ New Escrow Order</a>
+      {% endif %}
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      <div class="flash-stack">
+        {% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}
+      </div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+{% else %}
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="public-flashes">{% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}</div>
+    {% endif %}
+  {% endwith %}
+  {% block public_content %}{% endblock %}
+{% endif %}
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

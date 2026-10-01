@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block page_title %}Reports{% endblock %}
+{% block content %}
+<section class="stats-grid">
+<article class="stat"><span>Orders</span><strong>{{ totals.orders }}</strong></article>
+<article class="stat"><span>Held</span><strong>{{ money(totals.held) }}</strong></article>
+<article class="stat"><span>Released</span><strong>{{ money(totals.released) }}</strong></article>
+<article class="stat"><span>Refunded</span><strong>{{ money(totals.refunded) }}</strong></article>
+</section>
+<section class="panel">
+<div class="panel-head"><div><p class="eyebrow">Audit-ready history</p><h2>Transaction events</h2></div><a class="btn ghost" href="{{ url_for('reports_csv') }}">Download CSV</a></div>
+{% if transactions %}
+<div class="table-wrap"><table><thead><tr><th>Time</th><th>Order</th><th>Item</th><th>Event</th><th>Amount</th><th>Note</th></tr></thead><tbody>
+{% for t in transactions %}
+<tr><td>{{ t.created_at[:19].replace('T',' ') }}</td><td><a href="{{ url_for('order_detail', public_id=t.public_id) }}">{{ t.public_id }}</a></td><td>{{ t.item_name }}</td><td>{{ t.event_type.replace('_',' ')|title }}</td><td>{{ money(t.amount_cents, t.currency) if t.amount_cents else '—' }}</td><td>{{ t.note or '—' }}</td></tr>
+{% endfor %}
+</tbody></table></div>
+{% else %}<div class="empty-state"><h3>No transaction events</h3></div>{% endif %}
+</section>
+{% endblock %}
